@@ -11,7 +11,7 @@ class DBHelper {
 
   //table note
   static const String TABLE_NOTE = "note";
-  static const String COLUMN_NOTE_SNO = "s_no";
+  static const String COLUMN_NOTE_SNO = "sno";
   static const String COLUMN_NOTE_TITLE = "title";
   static const String COLUMN_NOTE_DESC = "desc";
 
@@ -43,9 +43,35 @@ class DBHelper {
     return rowsAffected > 0;
   }
 
+  //fetching all the notes after insertion/updation/deletion
   Future<List<Map<String, dynamic>>> getAllNotes() async {
     var db = await getDB();
     List<Map<String, dynamic>> mData = await db.query(TABLE_NOTE);
     return mData;
+  }
+
+  //updating the data
+  Future<bool> updateNotes(
+      {required String mTitle, required String mDesc, required int sno}) async {
+    var db = await getDB();
+    int rowsAffected = await db.update(
+      TABLE_NOTE,
+      {
+        COLUMN_NOTE_TITLE: mTitle,
+        COLUMN_NOTE_DESC: mDesc,
+      },
+      //updating only that notes whose COLUMN_NOTE_SNO is sno
+      where: "${COLUMN_NOTE_SNO}= $sno",
+    );
+
+    return rowsAffected > 0;
+  }
+  // deleting the notes
+
+  ////
+  Future<int> removeNotes(int id) async {
+    var db = await getDB();
+    return await db
+        .delete(TABLE_NOTE, where: '$COLUMN_NOTE_SNO = ?', whereArgs: [id]);
   }
 }
