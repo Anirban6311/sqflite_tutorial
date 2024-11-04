@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
                     child: ListTile(
                       leading: CircleAvatar(
                         child: Text(
-                          "${allNotes[index][DBHelper.COLUMN_NOTE_SNO]}",
+                          "${index+1}",
                           style: TextStyle(fontSize: 14),
                         ),
                       ),
