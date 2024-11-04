@@ -55,73 +55,18 @@ class _HomePageState extends State<HomePage> {
                           IconButton(
                             icon: Icon(Icons.edit, color: Colors.orangeAccent),
                             onPressed: () async {
+                              titleController.text =
+                                  allNotes[index][DBHelper.COLUMN_NOTE_TITLE];
+                              descriptionController.text =
+                                  allNotes[index][DBHelper.COLUMN_NOTE_DESC];
                               showModalBottomSheet(
                                 context: context,
                                 isScrollControlled: true,
                                 builder: (context) {
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                                    ),
-                                    child: SingleChildScrollView(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Edit Note",
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          SizedBox(height: 10),
-                                          TextField(
-                                            controller: titleController,
-                                            decoration: InputDecoration(
-                                              hintText: "Enter title here",
-                                              labelText: "Title",
-                                              border: OutlineInputBorder(),
-                                            ),
-                                          ),
-                                          SizedBox(height: 10),
-                                          TextField(
-                                            controller: descriptionController,
-                                            decoration: InputDecoration(
-                                              hintText: "Enter description here",
-                                              labelText: "Description",
-                                              border: OutlineInputBorder(),
-                                            ),
-                                          ),
-                                          SizedBox(height: 20),
-                                          ElevatedButton(
-                                            onPressed: () async {
-                                              final int sno = allNotes[index][DBHelper.COLUMN_NOTE_SNO];
-                                              var title = titleController.text;
-                                              var desc = descriptionController.text;
-                                              
-                                              bool check = await dbRef!.updateNotes(
-                                                 // Correct parameter
-                                                mTitle: title, // Named parameter
-                                                mDesc: desc ,
-                                                sno: sno// Named parameter
-                                              );
-
-                                              if (check) {
-                                                getNotes();
-                                                Navigator.pop(context); // Close the bottom sheet
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(content: Text("Note Updated")),
-                                                );
-                                              }
-                                            },
-                                            child: Text("Edit Note"),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
+                                  return getBottomSheetWiget(
+                                      isUpdate: true,
+                                      sno: allNotes[index]
+                                          [DBHelper.COLUMN_NOTE_SNO]);
                                 },
                               );
                             },
@@ -129,7 +74,8 @@ class _HomePageState extends State<HomePage> {
                           IconButton(
                             icon: Icon(Icons.delete, color: Colors.red),
                             onPressed: () async {
-                              final int noteID = allNotes[index][DBHelper.COLUMN_NOTE_SNO];
+                              final int noteID =
+                                  allNotes[index][DBHelper.COLUMN_NOTE_SNO];
                               int check = await dbRef!.removeNotes(noteID);
 
                               if (check > 0) {
@@ -156,72 +102,97 @@ class _HomePageState extends State<HomePage> {
             context: context,
             isScrollControlled: true,
             builder: (context) {
-              return Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Add Note",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      TextField(
-                        controller: titleController,
-                        decoration: InputDecoration(
-                          hintText: "Enter title here",
-                          labelText: "Title",
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      TextField(
-                        controller: descriptionController,
-                        decoration: InputDecoration(
-                          hintText: "Enter description here",
-                          labelText: "Description",
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () async {
-                          var title = titleController.text;
-                          var desc = descriptionController.text;
-                          if (title.isNotEmpty && desc.isNotEmpty) {
-                            bool check = await dbRef!.addNote(
-                              mTitle: title, 
-                              mDesc: desc,
-                            );
-                            if (check) {
-                              getNotes();
-                              Navigator.pop(context); // Close the bottom sheet
-                            }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Notes not added")));
-                          }
-                          titleController.clear();
-                          descriptionController.clear();
-                        },
-                        child: Text("Save Note"),
-                      ),
-                    ],
-                  ),
-                ),
-              );
+              titleController.clear();
+              descriptionController.clear();
+              return getBottomSheetWiget();
             },
           );
         },
         child: Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget getBottomSheetWiget({bool isUpdate = false, int sno = 0}) {
+    return Container(
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isUpdate ? "Update Note" : "Add Note",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(
+                  hintText: "Enter title here",
+                  labelText: "Title",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: descriptionController,
+                decoration: InputDecoration(
+                  hintText: "Enter description here",
+                  labelText: "Description",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  // final int sno = allNotes[index][DBHelper.COLUMN_NOTE_SNO];
+                  var title = titleController.text;
+                  var desc = descriptionController.text;
+                  if (title.isNotEmpty && desc.isNotEmpty) {
+                    bool check = isUpdate
+                        ? await dbRef!.updateNotes(
+                            // Correct parameter
+                            mTitle: title, // Named parameter
+                            mDesc: desc,
+                            sno: sno // Named parameter
+
+                            )
+                        : await dbRef!.addNote(
+                            // Correct parameter
+                            mTitle: title, // Named parameter
+                            mDesc: desc,
+                            // Named parameter
+                          );
+
+                    if (check) {
+                      getNotes();
+                      Navigator.pop(context); // Close the bottom sheet
+
+                      isUpdate
+                          ? ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Note Updated")),
+                            )
+                          : ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Note Added")));
+                    } else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text("Not")));
+                    }
+                  }
+                },
+                child: Text(isUpdate ? "Update Note" : "Add Note"),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
