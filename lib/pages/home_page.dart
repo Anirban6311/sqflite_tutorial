@@ -11,6 +11,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
   List<Map<String, dynamic>> allNotes = [];
   DBHelper? dbRef;
 
@@ -30,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Anirban Note App"),
+        title: const Text("Anirban Note App"),
       ),
       body: allNotes.isNotEmpty
           ? ListView.builder(
@@ -42,7 +43,7 @@ class _HomePageState extends State<HomePage> {
                     child: ListTile(
                       leading: CircleAvatar(
                         child: Text(
-                          "${index+1}",
+                          "${index + 1}",
                           style: TextStyle(fontSize: 14),
                         ),
                       ),
@@ -150,25 +151,37 @@ class _HomePageState extends State<HomePage> {
                   border: OutlineInputBorder(),
                 ),
               ),
+              SizedBox(height: 10),
+              TextField(
+                controller: descriptionController,
+                decoration: InputDecoration(
+                  hintText: "Enter date here",
+                  labelText: "Date",
+                  border: OutlineInputBorder(),
+                ),
+              ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
                   // final int sno = allNotes[index][DBHelper.COLUMN_NOTE_SNO];
                   var title = titleController.text;
                   var desc = descriptionController.text;
+                  var date = dateController.text;
                   if (title.isNotEmpty && desc.isNotEmpty) {
                     bool check = isUpdate
                         ? await dbRef!.updateNotes(
                             // Correct parameter
                             mTitle: title, // Named parameter
                             mDesc: desc,
-                            sno: sno // Named parameter
+                            sno: sno,
+                            mDate: date // Named parameter
 
                             )
                         : await dbRef!.addNote(
                             // Correct parameter
                             mTitle: title, // Named parameter
                             mDesc: desc,
+                            mDate: date,
                             // Named parameter
                           );
 

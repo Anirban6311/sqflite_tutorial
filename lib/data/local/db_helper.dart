@@ -1,7 +1,8 @@
+import 'dart:io';
+
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
-import 'dart:io';
 
 class DBHelper {
   //creating a singleton class
@@ -14,6 +15,7 @@ class DBHelper {
   static const String COLUMN_NOTE_SNO = "sno";
   static const String COLUMN_NOTE_TITLE = "title";
   static const String COLUMN_NOTE_DESC = "desc";
+  static const String COLUMN_NOTE_DAT = "date";
 
   Database? myDB;
 
@@ -29,16 +31,20 @@ class DBHelper {
     // Correcting the SQL syntax error: 'auto increment' -> 'AUTOINCREMENT'
     return await openDatabase(dbPath, onCreate: (db, version) {
       db.execute(
-          "CREATE TABLE $TABLE_NOTE ($COLUMN_NOTE_SNO INTEGER PRIMARY KEY AUTOINCREMENT, $COLUMN_NOTE_TITLE TEXT, $COLUMN_NOTE_DESC TEXT)");
+          "CREATE TABLE $TABLE_NOTE ($COLUMN_NOTE_SNO INTEGER PRIMARY KEY AUTOINCREMENT, $COLUMN_NOTE_TITLE TEXT, $COLUMN_NOTE_DESC TEXT , $COLUMN_NOTE_DAT TEXT)");
     }, version: 1);
   }
 
   //all queries
-  Future<bool> addNote({required String mTitle, required String mDesc}) async {
+  Future<bool> addNote(
+      {required String mTitle,
+      required String mDesc,
+      required String mDate}) async {
     var db = await getDB();
     int rowsAffected = await db.insert(TABLE_NOTE, {
       COLUMN_NOTE_TITLE: mTitle,
       COLUMN_NOTE_DESC: mDesc,
+      COLUMN_NOTE_DAT: mDate,
     });
     return rowsAffected > 0;
   }
@@ -52,13 +58,17 @@ class DBHelper {
 
   //updating the data
   Future<bool> updateNotes(
-      {required String mTitle, required String mDesc, required int sno}) async {
+      {required String mTitle,
+      required String mDesc,
+      required int sno,
+      required mDate}) async {
     var db = await getDB();
     int rowsAffected = await db.update(
       TABLE_NOTE,
       {
         COLUMN_NOTE_TITLE: mTitle,
         COLUMN_NOTE_DESC: mDesc,
+        COLUMN_NOTE_DAT: mDate
       },
       //updating only that notes whose COLUMN_NOTE_SNO is sno
       where: "${COLUMN_NOTE_SNO}= $sno",
